@@ -1,5 +1,5 @@
 "use client"
-import { SideBarElement } from "./SideBarElement.tsx"
+import { SideBarElement } from "./SideBarElement"
 import { useState } from "react"
 
 export function SideBar(){
