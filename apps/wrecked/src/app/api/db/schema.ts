@@ -1,17 +1,15 @@
 import { relations, sql } from "drizzle-orm";
 import { int, sqliteTable, text, blob, check } from "drizzle-orm/sqlite-core";
 
+// what about celery requests 
 export const loggingBase = sqliteTable("logging_base",
     {
         id: int().primaryKey({autoIncrement: true}),
-        datetime: blob({ mode: 'bigint' }),
-        level: int().notNull(),
-        module: text(),
+        requestSendAt: blob({ mode: 'bigint' }).notNull(),
+        level: text({ enum: ["INFO", "WARNING", "ERROR"]}).notNull(),
         message: text().notNull(),
+        fileName: text().notNull(),
     },
-    (table) => ({
-        checkConstraint: check('level_check', sql`${table.level}>0 & ${table.level}<3`),
-    })
 );
 
 export const loggingBaseRelation = relations(loggingBase, ({ one }) => ({
@@ -21,7 +19,12 @@ export const loggingBaseRelation = relations(loggingBase, ({ one }) => ({
 export const extras = sqliteTable("extras",
     {
         id: int().primaryKey({ autoIncrement: true }),
-        baseId: int('logging_base').references(()=> loggingBase.id)
+        baseId: int('logging_base').references(()=> loggingBase.id),
+        executionTime: int(),
+        requestStatus: text(),
+        serializerError: text({mode: "json"}),
+        errorStack: blob(),
+        requestBody: text({ mode: "json"})
     }
 )
 
